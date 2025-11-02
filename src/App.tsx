@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigation } from './components/Navigation';
 import { Hero } from './components/Hero';
 import { ModeSelection } from './components/ModeSelection';
@@ -6,8 +6,17 @@ import { JournalingInterface } from './components/JournalingInterface';
 import { VoiceInput } from './components/VoiceInput';
 import { VideoInput } from './components/VideoInput';
 import { Dashboard } from './components/Dashboard';
+import { SignIn } from './components/SignIn';
+import { SignUp } from './components/SignUp';
 
-export type AppView = 'home' | 'journaling' | 'voice' | 'video' | 'dashboard';
+export type AppView =
+  | 'home'
+  | 'journaling'
+  | 'voice'
+  | 'video'
+  | 'dashboard'
+  | 'signin'
+  | 'signup';
 
 export interface JournalEntry {
   id: string;
@@ -26,6 +35,7 @@ export interface UserData {
 
 export default function App() {
   const [currentView, setCurrentView] = useState<AppView>('home');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState<UserData>({
     name: 'Friend',
     currentStreak: 7,
@@ -33,29 +43,44 @@ export default function App() {
     journalEntries: []
   });
 
+  // Routes that require login
+  const protectedRoutes: AppView[] = ['journaling', 'voice', 'video', 'dashboard'];
+
+  const handleNavigate = (view: AppView) => {
+    if (protectedRoutes.includes(view) && !isAuthenticated) {
+      setCurrentView('signin');
+      return;
+    }
+    setCurrentView(view);
+  };
+
+  // Redirect if accessing protected view without login
+  useEffect(() => {
+    if (protectedRoutes.includes(currentView) && !isAuthenticated) {
+      setCurrentView('signin');
+    }
+  }, [currentView, isAuthenticated]);
+
   const handleSaveJournalEntry = (entry: JournalEntry) => {
     setUserData(prev => {
-      // Check if there's already an entry for today
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const existingTodayEntry = prev.journalEntries.find(e => {
         const entryDate = new Date(e.date);
         entryDate.setHours(0, 0, 0, 0);
         return entryDate.getTime() === today.getTime();
       });
 
-      // If editing today's entry, don't increase streak
       if (existingTodayEntry) {
         return {
           ...prev,
-          journalEntries: prev.journalEntries.map(e => 
+          journalEntries: prev.journalEntries.map(e =>
             e.id === existingTodayEntry.id ? entry : e
           )
         };
       }
 
-      // If new entry on a different day, increase streak
       return {
         ...prev,
         journalEntries: [entry, ...prev.journalEntries],
@@ -66,39 +91,63 @@ export default function App() {
 
   return (
     <div className="min-h-screen">
-      <Navigation 
-        currentView={currentView} 
-        onNavigate={setCurrentView}
+      <Navigation
+        currentView={currentView}
+        onNavigate={handleNavigate}
+        isAuthenticated={isAuthenticated}
+        onLogout={() => {
+          setIsAuthenticated(false);
+          setCurrentView('home');
+        }}
       />
-      
+
       {currentView === 'home' && (
         <>
-          <Hero onGetStarted={() => setCurrentView('journaling')} />
-          <ModeSelection onSelectMode={setCurrentView} />
+          <Hero onGetStarted={() => handleNavigate('journaling')} />
+          <ModeSelection onSelectMode={handleNavigate} />
         </>
       )}
-      
-      {currentView === 'journaling' && (
-        <JournalingInterface 
+
+      {currentView === 'journaling' && isAuthenticated && (
+        <JournalingInterface
           onSave={handleSaveJournalEntry}
           onBack={() => setCurrentView('home')}
           currentStreak={userData.currentStreak}
           pastEntries={userData.journalEntries}
         />
       )}
-      
-      {currentView === 'voice' && (
+
+      {currentView === 'voice' && isAuthenticated && (
         <VoiceInput onBack={() => setCurrentView('home')} />
       )}
-      
-      {currentView === 'video' && (
+
+      {currentView === 'video' && isAuthenticated && (
         <VideoInput onBack={() => setCurrentView('home')} />
       )}
-      
-      {currentView === 'dashboard' && (
-        <Dashboard 
-          userData={userData}
-          onNavigate={setCurrentView}
+
+      {currentView === 'dashboard' && isAuthenticated && (
+        <Dashboard userData={userData} onNavigate={handleNavigate} />
+      )}
+
+      {currentView === 'signin' && (
+        <SignIn
+          onSignIn={() => {
+            setIsAuthenticated(true);
+            setCurrentView('home');
+          }}
+          onNavigate={handleNavigate}
+          onSwitchToSignUp={() => setCurrentView('signup')}
+        />
+      )}
+
+      {currentView === 'signup' && (
+        <SignUp
+          onSignUp={() => {
+            setIsAuthenticated(true);
+            setCurrentView('home');
+          }}
+          onNavigate={handleNavigate}
+          onSwitchToSignIn={() => setCurrentView('signin')}
         />
       )}
     </div>
