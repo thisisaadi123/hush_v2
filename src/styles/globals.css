@@ -1,0 +1,521 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* HUSH Color Palette */
+  /* Primary Colors */
+  --soft-sage: #A8C5A7;
+  --mint-whisper: #D4E7D4;
+  --leaf-shadow: #7A9A79;
+  
+  /* Accent Colors */
+  --sunrise-yellow: #F9E5A7;
+  --warm-honey: #EDD084;
+  --morning-glow: #FFF4D6;
+  
+  /* Neutrals */
+  --cream-base: #FDFDF8;
+  --soft-linen: #F5F5ED;
+  --natural-gray: #C8C8BC;
+  --warm-charcoal: #5A5A52;
+  --gentle-slate: #8B8B7E;
+  
+  /* Design System Variables */
+  --font-size: 16px;
+  --background: var(--cream-base);
+  --foreground: var(--warm-charcoal);
+  --card: var(--cream-base);
+  --card-foreground: var(--warm-charcoal);
+  --popover: var(--cream-base);
+  --popover-foreground: var(--warm-charcoal);
+  --primary: var(--soft-sage);
+  --primary-foreground: var(--cream-base);
+  --secondary: var(--mint-whisper);
+  --secondary-foreground: var(--warm-charcoal);
+  --muted: var(--soft-linen);
+  --muted-foreground: var(--gentle-slate);
+  --accent: var(--sunrise-yellow);
+  --accent-foreground: var(--warm-charcoal);
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: var(--natural-gray);
+  --input: transparent;
+  --input-background: var(--cream-base);
+  --switch-background: var(--natural-gray);
+  --font-weight-medium: 600;
+  --font-weight-normal: 400;
+  --ring: var(--soft-sage);
+  --radius: 0.5rem;
+  
+  /* Shadows */
+  --shadow-whisper: 0px 2px 8px rgba(122, 154, 121, 0.08);
+  --shadow-gentle: 0px 4px 16px rgba(122, 154, 121, 0.12);
+  --shadow-floating: 0px 8px 24px rgba(122, 154, 121, 0.16);
+  --shadow-soft-inner: inset 0px 2px 8px rgba(122, 154, 121, 0.06);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #FDFDF8 0%, #F5F5ED 50%, #D4E7D4 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+}
+
+/**
+ * Base typography for HUSH
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 56px;
+    }
+
+    h2 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 44px;
+    }
+
+    h3 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 36px;
+    }
+
+    h4 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 28px;
+    }
+
+    p {
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+    }
+
+    label {
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 24px;
+    }
+
+    button {
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 24px;
+    }
+
+    input, textarea {
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+}
+
+/* Custom utility classes for HUSH */
+.font-crimson {
+  font-family: 'Crimson Text', serif;
+}
+
+.shadow-whisper {
+  box-shadow: var(--shadow-whisper);
+}
+
+.shadow-gentle {
+  box-shadow: var(--shadow-gentle);
+}
+
+.shadow-floating {
+  box-shadow: var(--shadow-floating);
+}
+
+.shadow-soft-inner {
+  box-shadow: var(--shadow-soft-inner);
+}
+
+/* Organic blob shapes for backgrounds */
+.organic-blob {
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+
+/* Smooth transitions for HUSH */
+.transition-hush {
+  transition: all 200ms ease-out;
+}
+
+/* ============================================
+   GLASSMORPHISM DESIGN SYSTEM
+   ============================================ */
+
+/* Base glassmorphism effect - frosted glass appearance */
+.glassmorphism {
+  background: rgba(253, 253, 248, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(200, 200, 188, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(122, 154, 121, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Enhanced glassmorphism with stronger blur */
+.glassmorphism-strong {
+  background: rgba(253, 253, 248, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(200, 200, 188, 0.35);
+  box-shadow: 
+    0 12px 40px rgba(122, 154, 121, 0.12),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+/* Subtle glassmorphism for secondary elements */
+.glassmorphism-subtle {
+  background: rgba(253, 253, 248, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(200, 200, 188, 0.2);
+  box-shadow: 
+    0 4px 16px rgba(122, 154, 121, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+/* Glassmorphism with accent color tint */
+.glassmorphism-accent {
+  background: rgba(212, 231, 212, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(168, 197, 167, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(122, 154, 121, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Glassmorphism with warm accent (honey/yellow) */
+.glassmorphism-warm {
+  background: rgba(255, 244, 214, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(249, 229, 167, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(122, 154, 121, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+/* Glassmorphism for floating panels/modals */
+.glassmorphism-floating {
+  background: rgba(253, 253, 248, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(200, 200, 188, 0.4);
+  box-shadow: 
+    0 20px 60px rgba(122, 154, 121, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+/* Glassmorphism for navigation elements */
+.glassmorphism-nav {
+  background: rgba(253, 253, 248, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(200, 200, 188, 0.25);
+  box-shadow: 
+    0 4px 20px rgba(122, 154, 121, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+/* Glassmorphism for cards with hover effect */
+.glassmorphism-card {
+  background: rgba(253, 253, 248, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(200, 200, 188, 0.3);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glassmorphism-card:hover {
+  background: rgba(253, 253, 248, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(168, 197, 167, 0.4);
+  box-shadow: 
+    0 12px 40px rgba(122, 154, 121, 0.12),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+/* Glassmorphism for input fields */
+.glassmorphism-input {
+  background: rgba(253, 253, 248, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(200, 200, 188, 0.3);
+  transition: all 200ms ease-out;
+}
+
+.glassmorphism-input:focus {
+  background: rgba(253, 253, 248, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(168, 197, 167, 0.5);
+  box-shadow: 
+    0 8px 32px rgba(122, 154, 121, 0.1),
+    inset 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Glassmorphism for buttons */
+.glassmorphism-button {
+  background: rgba(168, 197, 167, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(122, 154, 121, 0.3);
+  box-shadow: 
+    0 8px 24px rgba(122, 154, 121, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  transition: all 200ms ease-out;
+}
+
+.glassmorphism-button:hover {
+  background: rgba(122, 154, 121, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(122, 154, 121, 0.5);
+  box-shadow: 
+    0 12px 32px rgba(122, 154, 121, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Glassmorphism for secondary buttons */
+.glassmorphism-button-secondary {
+  background: rgba(245, 245, 237, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(168, 197, 167, 0.4);
+  box-shadow: 
+    0 4px 16px rgba(122, 154, 121, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  transition: all 200ms ease-out;
+}
+
+.glassmorphism-button-secondary:hover {
+  background: rgba(212, 231, 212, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(168, 197, 167, 0.5);
+  box-shadow: 
+    0 8px 24px rgba(122, 154, 121, 0.12),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+/* Glassmorphism overlay for modals/panels */
+.glassmorphism-overlay {
+  background: rgba(90, 90, 82, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Glassmorphism with gradient background */
+.glassmorphism-gradient {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 253, 248, 0.7) 0%,
+    rgba(212, 231, 212, 0.5) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(200, 200, 188, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(122, 154, 121, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Glassmorphism with warm gradient */
+.glassmorphism-gradient-warm {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 253, 248, 0.7) 0%,
+    rgba(255, 244, 214, 0.5) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(249, 229, 167, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(122, 154, 121, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+/* Glassmorphism animation - fade in with blur */
+@keyframes glassmorphism-fade-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+.glassmorphism-animate-in {
+  animation: glassmorphism-fade-in 300ms ease-out;
+}
+
+/* Glassmorphism animation - scale with blur */
+@keyframes glassmorphism-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+.glassmorphism-scale-in {
+  animation: glassmorphism-scale-in 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glassmorphism animation - slide in from right */
+@keyframes glassmorphism-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+.glassmorphism-slide-in-right {
+  animation: glassmorphism-slide-in-right 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glassmorphism depth effect - layered appearance */
+.glassmorphism-depth {
+  position: relative;
+  background: rgba(253, 253, 248, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(200, 200, 188, 0.3);
+}
+
+.glassmorphism-depth::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Glassmorphism with light reflection */
+.glassmorphism-reflection {
+  background: rgba(253, 253, 248, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(200, 200, 188, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(122, 154, 121, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    inset -1px -1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive glassmorphism adjustments */
+@media (max-width: 768px) {
+  .glassmorphism,
+  .glassmorphism-card {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .glassmorphism-strong {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .glassmorphism-floating {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+}
+
+/* Accessibility - reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .glassmorphism-card,
+  .glassmorphism-button,
+  .glassmorphism-button-secondary,
+  .glassmorphism-animate-in,
+  .glassmorphism-scale-in,
+  .glassmorphism-slide-in-right {
+    transition: none;
+    animation: none;
+  }
+}
