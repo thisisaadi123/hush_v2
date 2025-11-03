@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
+import { getTextScore } from '../utils/ai/textSentiment';
+import { TypingBiomarker } from '../utils/ai/typingBiomarker';
+import { analyzeVoice, recordVoiceSample } from '../utils/ai/voiceAnalysis';
 import { JournalEntry } from '../App';
 import { Button } from './ui/button';
 import { PlantVisualization } from './PlantVisualization';
 import { EditJournalDialog } from './ui/edit-journal-dialog';
 import { ArrowLeft, Check, RotateCw, Pencil } from 'lucide-react';
+import { modelApi } from '../utils/api';
 
 interface JournalingInterfaceProps {
   onSave: (entry: JournalEntry) => void;
@@ -82,22 +86,106 @@ export function JournalingInterface({ onSave, onBack, currentStreak, pastEntries
     return () => clearTimeout(timeout);
   }, [content]);
 
-  const handleSave = () => {
-    if (content.trim()) {
-      const entry: JournalEntry = {
-        id: `entry-${Date.now()}`,
-        date: new Date(),
-        content: content,
-        prompt: currentPrompt
-      };
-      onSave(entry);
-      setIsSaved(true);
-      setTimeout(() => {
-        setIsSaved(false);
-        setContent('');
-      }, 2000);
+  // Start typing biomarker listening on mount, cleanup on unmount
+  useEffect(() => {
+    // Reset and start fresh
+    TypingBiomarker.stopListening();
+    TypingBiomarker.startListening('journal-input');
+    
+    // Expose for interactive testing in DevTools
+    try {
+      (window as any).TypingBiomarker = TypingBiomarker;
+    } catch (e) {
+      // noop in non-browser
     }
+
+    // Clean up listener when component unmounts
+    return () => {
+      TypingBiomarker.stopListening();
+    };
+  }, []);
+
+  async function runAIDiagnostics() {
+    try {
+      const text = content || '';
+      const textScore = getTextScore(text);
+      const typingResult = TypingBiomarker.analyze();
+
+      let voiceScore: number | null = null;
+      const doVoice = window.confirm('Run voice diagnostics? This will record ~3 seconds from your microphone.');
+      if (doVoice) {
+        try {
+          await recordVoiceSample(3000);
+          voiceScore = await analyzeVoice();
+        } catch (err) {
+          console.warn('Voice diagnostics failed', err);
+          voiceScore = null;
+        }
+      }
+
+      const msg = `AI Diagnostics:\n- textScore: ${textScore.toFixed(3)}\n- typingScore: ${typingResult.finalTypingScore.toFixed(3)}${voiceScore !== null ? `\n- voiceScore: ${voiceScore.toFixed(3)}` : ''}`;
+      console.log(msg);
+      alert(msg);
+    } catch (err) {
+      console.error('Diagnostics failed', err);
+      alert('Diagnostics failed — see console');
+    }
+  }
+
+  const handleSave = () => {
+    // keep for backward compatibility; prefer handleSubmit which includes AI attributions
+    handleSubmit();
   };
+
+  async function handleSubmit() {
+    if (!content.trim()) return;
+
+    // 1) Local save
+    const entry: JournalEntry = {
+      id: `entry-${Date.now()}`,
+      date: new Date(),
+      content: content,
+      prompt: currentPrompt
+    };
+    onSave(entry);
+
+    // 2) Get AI scores
+    const textScore = getTextScore(content);
+    // Typing biomarker
+    const typingResult = TypingBiomarker.analyze();
+
+    // Voice: attempt to record a short sample if user grants permission (non-blocking)
+    let voiceScore = 0;
+    try {
+      // optional: record voice sample for 3s; comment out if you don't want auto-record
+      // await recordVoiceSample(3000);
+      // voiceScore = await analyzeVoice();
+    } catch (err) {
+      console.warn('voice sample failed', err);
+    }
+
+    // 3) Prepare payload and send to backend
+    const payload = {
+      feature_attributions: {
+        text: textScore,
+        typing: typingResult.finalTypingScore,
+        voice: voiceScore
+      }
+    };
+
+    try {
+      await modelApi.submitUpdate(payload);
+      console.log('Logged attributions to backend');
+    } catch (err) {
+      console.error('Backend logging error:', err);
+    }
+
+    setIsSaved(true);
+    setTimeout(() => {
+      setIsSaved(false);
+      setContent('');
+    }, 2000);
+  }
 
   const handleNewPrompt = () => {
     const currentIndex = journalPrompts.indexOf(currentPrompt);
@@ -141,6 +229,12 @@ export function JournalingInterface({ onSave, onBack, currentStreak, pastEntries
             ) : (
               'Save Entry'
             )}
+          </Button>
+          <Button
+            onClick={runAIDiagnostics}
+            className="ml-3 h-10 px-4 rounded-[24px] bg-white border border-[#D4E7D4] text-[#5A5A52] font-semibold hover:bg-[#F5F5ED] transition-all duration-150"
+          >
+            AI Diagnostics
           </Button>
         </div>
       </div>
@@ -207,6 +301,7 @@ export function JournalingInterface({ onSave, onBack, currentStreak, pastEntries
               ) : (
                 <div>
                   <textarea
+                    id="journal-input"
                     ref={textareaRef}
                     value={content}
                     onChange={(e) => setContent(e.target.value)}

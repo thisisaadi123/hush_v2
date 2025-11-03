@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -10,6 +11,7 @@ import {
   FormMessage,
 } from './ui/form';
 import { AppView } from '../App';
+import { authApi, setToken } from '../utils/api';
 
 interface SignUpProps {
   onSignUp: () => void;
@@ -24,6 +26,9 @@ interface SignUpFormData {
 }
 
 export function SignUp({ onSignUp, onNavigate, onSwitchToSignIn }: SignUpProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
   const form = useForm<SignUpFormData>({
     defaultValues: {
       username: '',
@@ -32,12 +37,31 @@ export function SignUp({ onSignUp, onNavigate, onSwitchToSignIn }: SignUpProps) 
     },
   });
 
-  const onSubmit = (data: SignUpFormData) => {
-    // Form validation is handled by react-hook-form rules
-    // Password matching is validated in the confirmPassword field rules
-    // For now, just let them in (no backend)
-    console.log('Sign up attempt:', { username: data.username });
-    onSignUp();
+  const onSubmit = async (data: SignUpFormData) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Sign up first
+      await authApi.signUp({
+        username: data.username,
+        password: data.password,
+      });
+      
+      // Then sign in to get token
+      const response = await authApi.signIn({
+        username: data.username,
+        password: data.password,
+      });
+      
+      setToken(response.access_token);
+      onSignUp();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to sign up. Please try again.');
+      console.error('Sign up error:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -139,11 +163,18 @@ export function SignUp({ onSignUp, onNavigate, onSwitchToSignIn }: SignUpProps) 
                 )}
               />
 
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-[12px] text-[14px] text-red-600">
+                  {error}
+                </div>
+              )}
+
               <Button
                 type="submit"
-                className="w-full h-12 rounded-[12px] bg-[#A8C5A7] hover:bg-[#7A9A79] text-[#FDFDF8] font-semibold shadow-gentle transition-all duration-200 hover:shadow-floating hover:-translate-y-1 hover:scale-[1.02] relative overflow-hidden group mt-8"
+                disabled={isLoading}
+                className="w-full h-12 rounded-[12px] bg-[#A8C5A7] hover:bg-[#7A9A79] text-[#FDFDF8] font-semibold shadow-gentle transition-all duration-200 hover:shadow-floating hover:-translate-y-1 hover:scale-[1.02] relative overflow-hidden group mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="relative z-10">Sign Up</span>
+                <span className="relative z-10">{isLoading ? 'Creating Account...' : 'Sign Up'}</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-[#7A9A79] to-[#A8C5A7] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Button>
             </form>

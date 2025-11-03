@@ -5,9 +5,11 @@ import { Button } from './ui/button';
 interface NavigationProps {
   currentView: AppView;
   onNavigate: (view: AppView) => void;
+  isAuthenticated?: boolean;
+  onLogout?: () => void;
 }
 
-export function Navigation({ currentView, onNavigate }: NavigationProps) {
+export function Navigation({ currentView, onNavigate, isAuthenticated, onLogout }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -21,7 +23,8 @@ export function Navigation({ currentView, onNavigate }: NavigationProps) {
   const navLinks = [
     { label: 'Home', view: 'home' as AppView },
     { label: 'Journal', view: 'journaling' as AppView },
-    { label: 'Dashboard', view: 'dashboard' as AppView }
+    { label: 'Dashboard', view: 'dashboard' as AppView },
+    { label: 'SOL', view: 'sol' as AppView }
   ];
 
   return (
@@ -40,7 +43,7 @@ export function Navigation({ currentView, onNavigate }: NavigationProps) {
         </div>
 
         {/* Center: Navigation Links */}
-        <div className="flex items-center gap-12 absolute left-1/2 transform -translate-x-1/2">
+        <div className="flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
           {navLinks.map((link) => (
             <button
               key={link.view}
@@ -63,15 +66,32 @@ export function Navigation({ currentView, onNavigate }: NavigationProps) {
 
         {/* Right: Auth Buttons */}
         <div className="flex items-center gap-4 flex-shrink-0 ml-8">
-          <button className="text-[16px] font-semibold text-[#7A9A79] hover:text-[#5A5A52] transition-colors">
-            Sign In
-          </button>
-          <Button
-            className="h-10 px-8 rounded-[24px] bg-[#A8C5A7] hover:bg-[#7A9A79] text-[#FDFDF8] font-semibold shadow-gentle transition-all duration-200 hover:shadow-floating hover:-translate-y-1 hover:scale-105 relative overflow-hidden group"
-          >
-            <span className="relative z-10">Sign Up</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#7A9A79] to-[#A8C5A7] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </Button>
+          {!isAuthenticated ? (
+            <>
+              <button
+                onClick={() => onNavigate('signin')}
+                className="text-[16px] font-semibold text-[#7A9A79] hover:text-[#5A5A52] transition-colors"
+              >
+                Sign In
+              </button>
+              <Button
+                onClick={() => onNavigate('signup')}
+                className="h-10 px-8 rounded-[24px] bg-[#A8C5A7] hover:bg-[#7A9A79] text-[#FDFDF8] font-semibold shadow-gentle transition-all duration-200 hover:shadow-floating hover:-translate-y-1 hover:scale-105 relative overflow-hidden group"
+              >
+                <span className="relative z-10">Sign Up</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#7A9A79] to-[#A8C5A7] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => onLogout && onLogout()}
+                className="text-[16px] font-semibold text-[#7A9A79] hover:text-[#5A5A52] transition-colors"
+              >
+                Logout
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>

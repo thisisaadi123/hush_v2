@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Navigation } from './components/Navigation';
+import SolChatInterface from './components/SolChatInterface';
 import { Hero } from './components/Hero';
 import { ModeSelection } from './components/ModeSelection';
 import { JournalingInterface } from './components/JournalingInterface';
@@ -8,6 +9,7 @@ import { VideoInput } from './components/VideoInput';
 import { Dashboard } from './components/Dashboard';
 import { SignIn } from './components/SignIn';
 import { SignUp } from './components/SignUp';
+import { getToken, removeToken } from './utils/api';
 
 export type AppView =
   | 'home'
@@ -15,6 +17,7 @@ export type AppView =
   | 'voice'
   | 'video'
   | 'dashboard'
+  | 'sol'
   | 'signin'
   | 'signup';
 
@@ -35,7 +38,7 @@ export interface UserData {
 
 export default function App() {
   const [currentView, setCurrentView] = useState<AppView>('home');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!getToken());
   const [userData, setUserData] = useState<UserData>({
     name: 'Friend',
     currentStreak: 7,
@@ -97,10 +100,13 @@ export default function App() {
         isAuthenticated={isAuthenticated}
         onLogout={() => {
           setIsAuthenticated(false);
+          removeToken();
           setCurrentView('home');
         }}
       />
 
+  {/* Sol route (full chat view) */}
+  {currentView === 'sol' && <SolChatInterface onClose={() => setCurrentView('home')} />}
       {currentView === 'home' && (
         <>
           <Hero onGetStarted={() => handleNavigate('journaling')} />

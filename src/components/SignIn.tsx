@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -10,6 +11,7 @@ import {
   FormMessage,
 } from './ui/form';
 import { AppView } from '../App';
+import { authApi, setToken } from '../utils/api';
 
 interface SignInProps {
   onSignIn: () => void;
@@ -23,6 +25,9 @@ interface SignInFormData {
 }
 
 export function SignIn({ onSignIn, onNavigate, onSwitchToSignUp }: SignInProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
   const form = useForm<SignInFormData>({
     defaultValues: {
       username: '',
@@ -30,11 +35,20 @@ export function SignIn({ onSignIn, onNavigate, onSwitchToSignUp }: SignInProps) 
     },
   });
 
-  const onSubmit = (data: SignInFormData) => {
-    // Form validation is handled by react-hook-form rules
-    // For now, just let them in (no backend)
-    console.log('Sign in attempt:', data);
-    onSignIn();
+  const onSubmit = async (data: SignInFormData) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await authApi.signIn(data);
+      setToken(response.access_token);
+      onSignIn();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to sign in. Please try again.');
+      console.error('Sign in error:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -107,11 +121,18 @@ export function SignIn({ onSignIn, onNavigate, onSwitchToSignUp }: SignInProps) 
                 )}
               />
 
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-[12px] text-[14px] text-red-600">
+                  {error}
+                </div>
+              )}
+
               <Button
                 type="submit"
-                className="w-full h-12 rounded-[12px] bg-[#A8C5A7] hover:bg-[#7A9A79] text-[#FDFDF8] font-semibold shadow-gentle transition-all duration-200 hover:shadow-floating hover:-translate-y-1 hover:scale-[1.02] relative overflow-hidden group mt-8"
+                disabled={isLoading}
+                className="w-full h-12 rounded-[12px] bg-[#A8C5A7] hover:bg-[#7A9A79] text-[#FDFDF8] font-semibold shadow-gentle transition-all duration-200 hover:shadow-floating hover:-translate-y-1 hover:scale-[1.02] relative overflow-hidden group mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="relative z-10">Sign In</span>
+                <span className="relative z-10">{isLoading ? 'Signing In...' : 'Sign In'}</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-[#7A9A79] to-[#A8C5A7] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Button>
             </form>
